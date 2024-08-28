@@ -64,8 +64,10 @@ resource "aws_eks_pod_identity_association" "rad_sbom" {
   service_account = module.rad_plugin.sbom_service_account_name
   role_arn        = aws_iam_role.example.arn
 }
+```
 
 IRSA:
+
 ```hcl
 
 module "iam_assumable_role_example" {
