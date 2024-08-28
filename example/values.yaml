@@ -1,0 +1,290 @@
+# This is an example copied directly from the default values within the Helm Chart.
+
+ksoc:
+  # -- The combined API key to authenticate with KSOC
+  apiKey: ""
+  # -- The base URL for the KSOC API.
+  apiUrl: https://api.ksoc.com
+  # -- The ID of the Access Key used in this cluster (base64).
+  base64AccessKeyId: ""
+  # -- The secret key part of the Access Key used in this cluster (base64).
+  base64SecretKey: ""
+  # -- The name of the cluster you want displayed in KSOC.
+  clusterName: ""
+  # -- The name of the custom secret containing Access Key.
+  accessKeySecretNameOverride: ""
+  # -- Enable seccompProfile for all KSOC pods
+  seccompProfile:
+    enabled: true
+
+workloads:
+  # -- Whether to disable service mesh integration.
+  disableServiceMesh: true
+  # -- The image pull secret name to use to pull container images.
+  imagePullSecretName: ""
+
+priorityClass:
+  enabled: false
+  name: ksoc-priority
+  value: 1000000000
+  globalDefault: false
+  description: "The priority class for KSOC components"
+  preemptionPolicy: PreemptLowerPriority
+
+ksocBootstrapper:
+  image:
+    # -- The image to use for the ksoc-bootstrapper deployment (located at https://console.cloud.google.com/gcr/images/ksoc-public/us/ksoc-bootstrapper).
+    repository: us.gcr.io/ksoc-public/ksoc-bootstrapper
+    tag: v1.1.6
+  env: {}
+  resources:
+    limits:
+      cpu: 100m
+      memory: 64Mi
+      ephemeral-storage: 100Mi
+    requests:
+      cpu: 50m
+      memory: 32Mi
+      ephemeral-storage: 100Mi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+
+ksocGuard:
+  enabled: true
+  image:
+    # -- The image to use for the ksoc-guard deployment (located at https://console.cloud.google.com/gcr/images/ksoc-public/us/ksoc-guard).
+    repository: us.gcr.io/ksoc-public/ksoc-guard
+    tag: v1.1.10
+  config:
+    # -- Whether to block on error.
+    BLOCK_ON_ERROR: false
+    # -- Whether to block on policy violation.
+    BLOCK_ON_POLICY_VIOLATION: false
+    # -- Whether to block on timeout.
+    BLOCK_ON_TIMEOUT: false
+    # -- Whether to enable warning logs.
+    ENABLE_WARNING_LOGS: false
+    # -- The log level to use.
+    LOG_LEVEL: info
+  resources:
+    requests:
+      memory: 100Mi
+      cpu: 100m
+      ephemeral-storage: 100Mi
+    limits:
+      memory: 500Mi
+      cpu: 500m
+      ephemeral-storage: 1Gi
+  podAnnotations: {}
+  replicas: 1
+  webhook:
+    objectSelector: {}
+    timeoutSeconds: 10
+  nodeSelector: {}
+  tolerations: []
+
+ksocSbom:
+  enabled: true
+  image:
+    # -- The image to use for the ksoc-sbom deployment (located at https://console.cloud.google.com/gcr/images/ksoc-public/us/ksoc-sbom).
+    repository: us.gcr.io/ksoc-public/ksoc-sbom
+    tag: v1.1.20
+  env:
+    # -- Whether to mutate the image in pod spec by adding digest at the end. By default, digests are added to images to ensure
+    # that the image that runs in the cluster matches the digest of the build.  Disable this if your continuous deployment
+    # reconciler requires a strict image tag match.
+    MUTATE_IMAGE: true
+    # -- Whether to mutate the annotations in pod spec by adding images digests. Annotations can be used to track image
+    # digests in addition to, or instead of the image tag mutation.
+    MUTATE_ANNOTATIONS: false
+    # -- The format of the generated SBOM. Currently we support: syft-json,cyclonedx-json,spdx-json
+    SBOM_FORMAT: cyclonedx-json
+    # -- The log level to use.  Options are trace, debug, info, warn, error
+    LOG_LEVEL: info
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+      ephemeral-storage: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+      # -- The ephemeral storage limit is set to 25Gi to cache and reuse image layers for the sbom generation.
+      ephemeral-storage: 25Gi
+  podAnnotations: {}
+  webhook:
+    timeoutSeconds: 10
+  nodeSelector: {}
+  tolerations: []
+
+ksocSync:
+  enabled: true
+  image:
+    # -- The image to use for the ksoc-sync deployment (located at https://console.cloud.google.com/gcr/images/ksoc-public/us/ksoc-sync).
+    repository: us.gcr.io/ksoc-public/ksoc-sync
+    tag: v1.1.7
+  env: {}
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+      ephemeral-storage: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+      ephemeral-storage: 100Mi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+
+ksocWatch:
+  enabled: true
+  image:
+    # -- The image to use for the ksoc-watch deployment (located at https://console.cloud.google.com/gcr/images/ksoc-public/us/ksoc-watch).
+    repository: us.gcr.io/ksoc-public/ksoc-watch
+    tag: v1.1.20
+  env:
+    # -- Whether to trigger reconciliation at startup.
+    RECONCILIATION_AT_START: false
+  resources:
+    limits:
+      cpu: 250m
+      memory: 512Mi
+      ephemeral-storage: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+      ephemeral-storage: 100Mi
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+
+  # -- If set will allow ingesting Custom Resources specified in `customResourceRules`
+  ingestCustomResources: false
+  # -- Rules for Custom Resource ingestion containing allow- and denylists of rules specifying `apiGroups` and `resources`.
+  # E.g. `allowlist: apiGroups: ["custom.com"], resources: ["someResource", "otherResoure"]`
+  # Wildcards (`*`) can be used to match all.
+  # `customResourceRules.denylist` sets resources that should not be ingested. It has a priority over `customResourceRules.allowlist` to
+  #  deny resources allowed using a wildcard (`*`) match.
+  #  E.g. you can use `allowlist: apiGroups: ["custom.com"], resources: ["*"], denylist: apiGroups: ["custom.com"], resources: "excluded"`
+  # to ingest all resources within `custom.com` group but `excluded`.
+  customResourceRules:
+    allowlist: []
+    denylist: []
+
+ksocNodeAgent:
+  enabled: false
+  reachableVulnerabilitiesEnabled: false
+  image:
+    repository: us.gcr.io/ksoc-public/ksoc-node-agent
+    tag: v0.0.18
+  agent:
+    env:
+      AGENT_LOG_LEVEL: INFO
+      AGENT_TRACER_IGNORE_NAMESPACES: |
+        cert-manager,
+        ksoc,
+        kube-node-lease,
+        kube-public,
+        kube-system
+    resources:
+      limits:
+        cpu: 200m
+        memory: 1Gi
+        ephemeral-storage: 1Gi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+        ephemeral-storage: 100Mi
+    hostPID: false
+    collectors:
+      # An absolute path to the runc binary executable.
+      runtimePath: ""
+      docker:
+        enabled: false
+        socket: /run/docker.sock
+      containerd:
+        enabled: true
+        socket: /run/containerd/containerd.sock
+    mounts:
+      # A list of volumes you want to add to the agent pods.
+      volumes: []
+      # A list of volume mounts you want to add to the agent pods.
+      volumeMounts: []
+    eventQueueSize: 20000
+    grpcServerBatchSize: 2000
+  exporter:
+    env:
+      EXPORTER_LOG_LEVEL: INFO
+
+    # -- Allows to specify wildcard rules for filtering command arguments.
+    execFilters: []
+
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+        ephemeral-storage: 1Gi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+        ephemeral-storage: 100Mi
+  nodeSelector: {}
+  nodeName: ""
+  tolerations: []
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      # -- The maximum number of pods that can be unavailable during the update. Can be an absolute number or percent, e.g.  `5` or `"10%"`
+      maxUnavailable: 1
+      # -- The maximum number of pods that can be scheduled above the desired number of pods. Can be an absolute number or percent, e.g. `5` or `"10%"`
+      maxSurge: 0
+
+  # -- K9 is an in-cluster response plugin.  It will request any queued commands from
+  # -- the Rad Security backend, and execute them in the cluster.  Each capability must
+  # -- be opted into individually.
+k9:
+  enabled: false
+  replicas: 1
+  frontend:
+    image:
+      repository: us.gcr.io/ksoc-public/ksoc-frontend-agent
+      tag: v0.0.31
+    # -- The interval in which the agent polls the backend for new actions.
+    agentActionPollInterval: "5s"
+  backend:
+    image:
+      repository: us.gcr.io/ksoc-public/ksoc-backend-agent
+      tag: v0.0.31
+  resources:
+    limits:
+      cpu: 250m
+      memory: 512Mi
+      ephemeral-storage: 1Gi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+      ephemeral-storage: 100Mi
+  capabilities:
+    enableTerminatePod: false
+    enableTerminateNamespace: false
+    enableQuarantine: false
+    enableGetLogs: false
+    enableLabelPod: false
+  tolerations: []
+  nodeSelector: {}
+
+# Toggles support for Openshift. Please note that functionality is limited at the moment.
+openshift:
+  enabled: false
+
+# @ignored
+# -- Configuration for the EKS Addon dummy deployment. This is needed to track the status of addon.
+# -- This is a known issue and this is the  workaround for now. If you are not installing through the
+# -- EKS Addon Marketplace, you do not need to enable the addon.
+eksAddon:
+  enabled: false
+  image:
+    repository: public.ecr.aws/eks-distro/kubernetes/pause
+    tag: v1.29.1-eks-1-29-latest
