@@ -121,7 +121,7 @@ No modules.
 |------|------|
 | [helm_release.cert-manager](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
 | [helm_release.plugins](https://registry.terraform.io/providers/hashicorp/helm/latest/docs/resources/release) | resource |
-| [rad-security_cluster_api_key.this](https://registry.terraform.io/providers/hashicorp/rad-security/latest/docs/resources/cluster_api_key) | resource |
+| [rad-security_cluster_api_key.this](https://registry.terraform.io/providers/rad-security/rad-security/latest/docs/resources/cluster_api_key) | resource |
 
 ## Inputs
 

@@ -1,3 +1,14 @@
+terraform {
+  required_providers {
+    rad-security = {
+      source = "rad-security/rad-security"
+    }
+    helm = {
+      source = "hashicorp/helm"
+    }
+  }
+}
+
 resource "rad-security_cluster_api_key" "this" {}
 
 resource "helm_release" "cert-manager" {
