@@ -1,5 +1,5 @@
 output "rad_plugin_namespace" {
-  value = helm_release.rad_plugin.namespace
+  value = helm_release.plugins.namespace
 }
 
 output "sbom_service_account_name" {
