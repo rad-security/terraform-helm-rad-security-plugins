@@ -5,14 +5,16 @@ A terraform module for installing Rad Security Plugins through Terraform.
 
 This module provides a flexible way to deploy Rad Security plugins using Helm. It allows you to configure various components of the Rad Security suite, including Guard, SBOM, Sync, Watch, Node Agent, and K9.
 
-Rad Security currently requires Cert Manager to be installed prior to installing the plugins. This can be disabled by setting `install_cert_manager` to `false`.
-
 ## Features
 
 - Automatic cluster API key generation
 - Optional installation of cert-manager
 - Installs Rad Security plugins using Helm
 - Configurable components of the Rad Security plugins (Guard, SBOM, Sync, Watch, Node Agent, K9)
+
+## Requirements
+
+Cert Manager must be installed prior to installing the plugins. It can be installed by setting `install_cert_manager` to `true`. This will install the Cert Manager Helm Chart in the cert-manager namespace. If it is already installed or you do not want to install it using this method, you can set `install_cert_manager` to `false`.
 
 ## Usage
 To use this module, two providers are required. The `rad-security` provider and the `helm` provider.
